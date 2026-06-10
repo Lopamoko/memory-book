@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://lopamoko.github.io/memory-book/sitemap.xml
+Sitemap: https://memorybook.ru/sitemap.xml
