@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lopamoko.github.io/memory-book/sitemap.xml
