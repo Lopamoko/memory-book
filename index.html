@@ -190,15 +190,32 @@
   .card-cta::after { content: "→"; transition: transform .2s; }
   .card:hover .card-cta::after { transform: translateX(3px); }
 
-  /* ---------- gallery ---------- */
-  .masonry { columns: var(--gal-cols, 3) 260px; column-gap: 16px; }
-  .masonry button {
-    display: block; width: 100%; margin-bottom: 16px; padding: 0;
+  /* ---------- gallery (горизонтальная лента) ---------- */
+  .works-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+  .works-head .sec-head { margin-bottom: 28px; }
+  .strip-nav { display: flex; gap: 10px; margin-bottom: 32px; flex: none; }
+  .strip-btn {
+    width: 46px; height: 46px; border-radius: 999px; cursor: pointer;
+    background: var(--bg-card); color: var(--ink); border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .2s, color .2s, transform .15s;
+  }
+  .strip-btn:hover { border-color: var(--accent); color: var(--accent-deep); }
+  .strip-btn:active { transform: scale(.94); }
+  .gallery-strip {
+    display: flex; gap: 16px; overflow-x: auto;
+    scroll-snap-type: x mandatory; padding-bottom: 10px;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .gallery-strip::-webkit-scrollbar { display: none; }
+  .gallery-strip button {
+    flex: none; height: var(--gal-h, 340px); padding: 0;
     border: none; background: none; cursor: zoom-in;
+    scroll-snap-align: start;
     border-radius: 14px; overflow: hidden; box-shadow: var(--shadow-soft);
   }
-  .masonry img { width: 100%; transition: transform .3s ease; }
-  .masonry button:hover img { transform: scale(1.025); }
+  .gallery-strip img { height: 100%; width: auto; transition: transform .3s ease; }
+  .gallery-strip button:hover img { transform: scale(1.025); }
 
   /* ---------- about ---------- */
   #about { padding-top: 8px; }
@@ -305,6 +322,8 @@
     .contact-grid { grid-template-columns: 1fr; gap: 36px; }
     nav.main a:not(.btn) { display: none; }
     section { padding: 56px 0; }
+    .gallery-strip button { height: 250px; }
+    .works-head { align-items: center; }
   }
   @media (max-width: 560px) {
     .cards { grid-template-columns: 1fr; }
@@ -412,11 +431,21 @@
   <!-- ЛЕНТА РАБОТ -->
   <section id="works" data-screen-label="Наши работы">
     <div class="wrap">
-      <div class="sec-head">
-        <h2>Наши работы</h2>
-        <p class="sec-sub">Живые фотографии готовых заказов — без ретуши и стоков.</p>
+      <div class="works-head">
+        <div class="sec-head">
+          <h2>Наши работы</h2>
+          <p class="sec-sub">Живые фотографии готовых заказов — без ретуши и стоков. Листайте вбок.</p>
+        </div>
+        <div class="strip-nav">
+          <button class="strip-btn" id="strip-prev" aria-label="Назад">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg>
+          </button>
+          <button class="strip-btn" id="strip-next" aria-label="Вперёд">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg>
+          </button>
+        </div>
       </div>
-      <div class="masonry" id="gallery">
+      <div class="gallery-strip" id="gallery">
         <button><img src="assets/gallery/02-book-alena.jpg" alt="Персональная детская книга «Алёна и лесные зверята настроения»" loading="lazy"></button>
         <button><img src="assets/gallery/36-album-alexandra.jpg" alt="Свадебный фотоальбом «Александра и Андрей» с тиснением" loading="lazy"></button>
         <button><img src="assets/gallery/09-invite-blue.jpg" alt="Пригласительные на свадьбу с синим конвертом и сургучной печатью" loading="lazy"></button>
@@ -642,6 +671,29 @@
       document.getElementById('m-comment').value
     );
     closeModal();
+  });
+
+  // Стрелки ленты работ
+  const strip = document.getElementById('gallery');
+  function scrollStrip(delta) {
+    const start = strip.scrollLeft;
+    const max = strip.scrollWidth - strip.clientWidth;
+    const target = Math.max(0, Math.min(start + delta, max));
+    const dur = 380;
+    const t0 = performance.now();
+    function step(now) {
+      const p = Math.min(1, (now - t0) / dur);
+      const e = 1 - Math.pow(1 - p, 3);
+      strip.scrollLeft = start + (target - start) * e;
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  document.getElementById('strip-prev').addEventListener('click', function () {
+    scrollStrip(-strip.clientWidth * 0.8);
+  });
+  document.getElementById('strip-next').addEventListener('click', function () {
+    scrollStrip(strip.clientWidth * 0.8);
   });
 
   // Лайтбокс
